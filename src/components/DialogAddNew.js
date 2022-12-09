@@ -19,14 +19,44 @@ class DialogAddNew extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      errorId: "Format hợp lệ: 8 chữ số và chưa có trong danh sách",
+      errorName: "Tên không để trống",
+      errorDate: "",
       newOne: {
         name: "",
         id: "",
         hometown: "",
-        date: "",
+        date: "1/1/1922",
       },
     };
   }
+
+  onChangeId(event) {
+    if (this.props.checkId(event.target.value) === 1) {
+      this.setState({ errorId: "Đã có mã sinh viên này" });
+    } else if (this.props.checkId(event.target.value)) {
+      this.setState({ errorId: "" });
+    } else {
+      this.setState({ errorId: "Format hợp lệ: 8 chữ số" });
+    }
+    this.setState({
+      newOne: { ...this.state.newOne, id: event.target.value },
+    });
+  }
+
+  onChangeName(event) {
+    if (this.props.checkName(event.target.value) === 1) {
+      this.setState({ errorName: "Tên không để trống" });
+    } else if (this.props.checkName(event.target.value)) {
+      this.setState({ errorName: "Trùng tên" });
+    } else {
+      this.setState({ errorName: "" });
+    }
+    this.setState({
+      newOne: { ...this.state.newOne, name: event.target.value },
+    });
+  }
+
   render() {
     return (
       <div>
@@ -35,32 +65,26 @@ class DialogAddNew extends Component {
           <DialogContent>
             <TextField
               label="Họ và tên"
+              helperText={this.state.errorName}
               margin="dense"
               autoFocus
               type="text"
-              value={this.state.newOne.name}
-              onChange={(event) =>
-                this.setState({
-                  newOne: { ...this.state.newOne, name: event.target.value },
-                })
-              }
+              onChange={this.onChangeName.bind(this)}
               variant="outlined"
               fullWidth
               inputProps={{ maxLength: 100 }}
+              required
             />
             <TextField
               label="Mã sinh viên"
+              helperText={this.state.errorId}
               margin="dense"
               autoFocus
               type="text"
-              value={this.state.newOne.id}
-              onChange={(event) =>
-                this.setState({
-                  newOne: { ...this.state.newOne, id: event.target.value },
-                })
-              }
+              onChange={this.onChangeId.bind(this)}
               variant="outlined"
               fullWidth
+              required
             />
             <LocalizationProvider dateAdapter={AdapterMoment}>
               <DesktopDatePicker
@@ -76,8 +100,25 @@ class DialogAddNew extends Component {
                     },
                   });
                 }}
+                onError={(reason, value) => {
+                  if (reason) {
+                    this.setState({
+                      errorDate: reason,
+                    });
+                  } else {
+                    this.setState({
+                      errorDate: "",
+                    });
+                  }
+                }}
                 renderInput={(props) => (
-                  <TextField {...props} name="date" margin="dense" />
+                  <TextField
+                    {...props}
+                    name="date"
+                    margin="dense"
+                    error={this.state.errorDate ? true : false}
+                    helperText={this.state.errorDate}
+                  />
                 )}
               />
             </LocalizationProvider>
@@ -96,6 +137,7 @@ class DialogAddNew extends Component {
                 })
               }
               variant="outlined"
+              inputProps={{ maxLength: 100 }}
               fullWidth
             />
           </DialogContent>
@@ -105,6 +147,13 @@ class DialogAddNew extends Component {
             </Button>
             <Button
               color="primary"
+              disabled={
+                this.state.errorId &&
+                this.state.errorName &&
+                this.state.errorDate
+                  ? true
+                  : false
+              }
               onClick={() => this.props.handleSubmit(this.state.newOne)}
             >
               Submit

@@ -18,16 +18,27 @@ import moment from "moment";
 class DialogEditItem extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      errorName: "Tên không để trống",
+      errorDate: "",
+    };
   }
+
+  onChangeName(event) {
+    if (this.props.checkName(event.target.value) === 1) {
+      this.setState({ errorName: "Tên không để trống" });
+    } else if (this.props.checkName(event.target.value)) {
+      this.setState({ errorName: "Trùng tên" });
+    } else {
+      this.setState({ errorName: "" });
+    }
+    this.props.handleChange(event, "name");
+  }
+
   render() {
     return (
       <div>
-        <Dialog
-          open={this.props.open}
-          // handleClose={handleClose}
-          // onUpdateSuccess={handleUpdateDataSuccess}
-        >
+        <Dialog open={this.props.open}>
           <DialogTitle>
             Edit:{" "}
             {this.props.selectedItem &&
@@ -36,11 +47,12 @@ class DialogEditItem extends Component {
           <DialogContent>
             <TextField
               label="Họ và tên"
+              helperText={this.state.errorName}
               margin="dense"
               autoFocus
               type="text"
-              value={this.props.selectedItem.name}
-              onChange={(event) => this.props.handleChange(event, "name")}
+              defaultValue={this.props.selectedItem.name}
+              onChange={this.onChangeName.bind(this)}
               variant="outlined"
               fullWidth
               inputProps={{ maxLength: 100 }}
@@ -66,8 +78,25 @@ class DialogEditItem extends Component {
                     moment(newValue).format("DD/MM/YYYY")
                   );
                 }}
+                onError={(reason, value) => {
+                  if (reason) {
+                    this.setState({
+                      errorDate: reason,
+                    });
+                  } else {
+                    this.setState({
+                      errorDate: "",
+                    });
+                  }
+                }}
                 renderInput={(props) => (
-                  <TextField {...props} name="date" margin="dense" />
+                  <TextField
+                    {...props}
+                    name="date"
+                    margin="dense"
+                    error={this.state.errorDate ? true : false}
+                    helperText={this.state.errorDate}
+                  />
                 )}
               />
             </LocalizationProvider>
@@ -79,6 +108,7 @@ class DialogEditItem extends Component {
               value={this.props.selectedItem.hometown}
               onChange={(event) => this.props.handleChange(event, "hometown")}
               variant="outlined"
+              inputProps={{ maxLength: 100 }}
               fullWidth
             />
           </DialogContent>
@@ -86,7 +116,13 @@ class DialogEditItem extends Component {
             <Button color="primary" onClick={this.props.handleClose}>
               Cancel
             </Button>
-            <Button color="primary" onClick={this.props.handleSubmit}>
+            <Button
+              color="primary"
+              disabled={
+                this.state.errorName && this.state.errorDate ? true : false
+              }
+              onClick={this.props.handleSubmit}
+            >
               Submit
             </Button>
           </DialogActions>

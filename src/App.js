@@ -40,6 +40,22 @@ class App extends Component {
     });
   };
 
+  checkId = (id) => {
+    const idRegex = new RegExp("^[0-9]{8}$");
+    console.log(this.state.rows.find((item) => item.id === id));
+    if (this.state.rows.find((item) => item.id === id)) {
+      return 1;
+    } else return idRegex.test(id);
+  };
+
+  checkName = (name) => {
+    if (this.state.rows.find((item) => item.name === name)) {
+      return true;
+    } else if (name === "") {
+      return 1;
+    } else return false;
+  };
+
   handleOpenAddNew = () => {
     this.setState({
       openAddNew: true,
@@ -117,8 +133,14 @@ class App extends Component {
   actionsBlock = (item) => {
     return (
       <div className="actionsBlock">
-        <EditIcon onClick={() => this.handleClickOpen(item)} />
-        <DeleteIcon onClick={() => this.handleDeleteItem(item)} />
+        <EditIcon
+          style={{ cursor: "pointer" }}
+          onClick={() => this.handleClickOpen(item)}
+        />
+        <DeleteIcon
+          style={{ cursor: "pointer" }}
+          onClick={() => this.handleDeleteItem(item)}
+        />
       </div>
     );
   };
@@ -163,6 +185,7 @@ class App extends Component {
           <DialogEditItem
             open={this.state.openEditItem}
             selectedItem={this.state.selectedItem}
+            checkName={this.checkName}
             handleClose={this.handleClose}
             handleChange={this.handleChange}
             handleChangeDate={this.handleChangeDate}
@@ -181,6 +204,8 @@ class App extends Component {
           <DialogAddNew
             rows={this.state.rows}
             open={this.state.openAddNew}
+            checkId={this.checkId}
+            checkName={this.checkName}
             handleClose={this.handleClose}
             handleChange={this.handleChange}
             handleChangeDate={this.handleChangeDate}
