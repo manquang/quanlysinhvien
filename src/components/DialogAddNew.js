@@ -20,7 +20,7 @@ class DialogAddNew extends Component {
     super(props);
     this.state = {
       errorId: "Format hợp lệ: 8 chữ số và chưa có trong danh sách",
-      errorName: "Tên không để trống",
+      errorName: "Không để trống",
       errorDate: "",
       newOne: {
         name: "",
@@ -148,8 +148,8 @@ class DialogAddNew extends Component {
             <Button
               color="primary"
               disabled={
-                this.state.errorId &&
-                this.state.errorName &&
+                this.state.errorId ||
+                this.state.errorName ||
                 this.state.errorDate
                   ? true
                   : false

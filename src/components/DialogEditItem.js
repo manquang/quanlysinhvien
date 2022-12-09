@@ -119,7 +119,7 @@ class DialogEditItem extends Component {
             <Button
               color="primary"
               disabled={
-                this.state.errorName && this.state.errorDate ? true : false
+                this.state.errorName || this.state.errorDate ? true : false
               }
               onClick={this.props.handleSubmit}
             >
